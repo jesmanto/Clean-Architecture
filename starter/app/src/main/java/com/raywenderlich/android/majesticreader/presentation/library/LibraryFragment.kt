@@ -59,7 +59,7 @@ class LibraryFragment : Fragment() {
 
   private lateinit var mainActivityDelegate: MainActivityDelegate
 
-  override fun onAttach(context: Context?) {
+  override fun onAttach(context: Context) {
     super.onAttach(context)
 
     try {
@@ -83,7 +83,7 @@ class LibraryFragment : Fragment() {
 
     viewModel = ViewModelProviders.of(this, MajesticViewModelFactory)
         .get(LibraryViewModel::class.java)
-    viewModel.documents.observe(this, Observer { adapter.update(it) })
+    viewModel.documents.observe(viewLifecycleOwner, Observer { adapter.update(it) })
     viewModel.loadDocuments()
 
     fab.setOnClickListener { startActivityForResult(createOpenIntent(), READ_REQUEST_CODE) }
