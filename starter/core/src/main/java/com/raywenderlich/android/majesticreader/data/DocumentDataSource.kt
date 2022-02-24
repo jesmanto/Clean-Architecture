@@ -5,6 +5,6 @@ import com.raywenderlich.android.majesticreader.domain.Document
 
 interface DocumentDataSource {
     suspend fun add(document: Document)
-    suspend fun readAll(): List<Bookmark>
-    suspend fun delete(bookmark: Bookmark)
+    suspend fun readAll(): List<Document>
+    suspend fun delete(document: Document)
 }
