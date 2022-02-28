@@ -33,6 +33,7 @@ package com.raywenderlich.android.majesticreader.framework
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.raywenderlich.android.majesticreader.presentation.MainActivity
 
 object MajesticViewModelFactory : ViewModelProvider.Factory {
 
@@ -40,7 +41,7 @@ object MajesticViewModelFactory : ViewModelProvider.Factory {
 
   lateinit var dependencies: Interactors
 
-  fun inject(application: Application, dependencies: Interactors) {
+  fun inject(application: MainActivity, dependencies: Interactors) {
     MajesticViewModelFactory.application = application
     MajesticViewModelFactory.dependencies = dependencies
   }

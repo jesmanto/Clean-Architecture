@@ -32,14 +32,20 @@ package com.raywenderlich.android.majesticreader.presentation
 
 import android.os.Bundle
 import androidx.core.view.GravityCompat
-import androidx.appcompat.app.ActionBarDrawerToggle
 import android.view.MenuItem
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import com.raywenderlich.android.majesticreader.domain.Document
 import com.raywenderlich.android.majesticreader.R
+import com.raywenderlich.android.majesticreader.RoomDocumentDataSource
+import com.raywenderlich.android.majesticreader.data.BookmarkRepository
+import com.raywenderlich.android.majesticreader.data.DocumentRepository
+import com.raywenderlich.android.majesticreader.framework.InMemoryOpenDocumentDataSource
+import com.raywenderlich.android.majesticreader.framework.Interactors
+import com.raywenderlich.android.majesticreader.framework.MajesticViewModelFactory
+import com.raywenderlich.android.majesticreader.framework.RoomBookmarkDataSource
+import com.raywenderlich.android.majesticreader.interactors.*
 import com.raywenderlich.android.majesticreader.presentation.library.LibraryFragment
 import com.raywenderlich.android.majesticreader.presentation.reader.ReaderFragment
 import kotlinx.android.synthetic.main.activity_main.*
@@ -47,29 +53,33 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
     MainActivityDelegate {
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_main)
-    val toolbar: Toolbar = findViewById(R.id.toolbar)
-    setSupportActionBar(toolbar)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    val toggle = ActionBarDrawerToggle(
-        this, drawer_layout, toolbar,
-        R.string.navigation_drawer_open,
-        R.string.navigation_drawer_close)
-    drawer_layout.addDrawerListener(toggle)
-    toggle.syncState()
+        val bookmarkRepository = BookmarkRepository(RoomBookmarkDataSource(this))
+        val documentRepository = DocumentRepository(
+            RoomDocumentDataSource(this),
+            InMemoryOpenDocumentDataSource()
+        )
 
-    nav_view.setNavigationItemSelectedListener(this)
-
-    if(savedInstanceState == null) {
-      nav_view.menu.findItem(R.id.nav_library).isChecked = true
-      nav_view.menu.performIdentifierAction(R.id.nav_library, 0)
+        MajesticViewModelFactory.inject(
+            this,
+            Interactors(
+                AddBookmark(bookmarkRepository),
+                GetBookmarks(bookmarkRepository),
+                RemoveBookmark(bookmarkRepository),
+                AddDocument(documentRepository),
+                GetDocuments(documentRepository),
+                RemoveDocument(documentRepository),
+                GetOpenDocument(documentRepository),
+                SetOpenDocument(documentRepository)
+            )
+        )
     }
-  }
 
 
-  override fun onBackPressed() {
+
+    override fun onBackPressed() {
     val drawerLayout: DrawerLayout = findViewById(
         R.id.drawer_layout)
     if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
