@@ -150,8 +150,10 @@ class ReaderViewModel(application: Application, interactors: Interactors) : Maje
     }
 
     fun openDocument(uri: Uri) {
-        // TODO open document
+        document.value = Document(uri.toString(), "", 0, "")
+        document.value?.let { interactors.setOpenDocument(it) }
     }
+
 
     fun openBookmark(bookmark: Bookmark) {
         openPage(bookmark.page)
@@ -168,10 +170,34 @@ class ReaderViewModel(application: Application, interactors: Interactors) : Maje
     fun reopenPage() = openPage(currentPage.value?.index ?: 0)
 
     fun toggleBookmark() {
-        // TODO toggle bookmark on the current page
+        val currentPage = currentPage.value?.index ?: return
+        val document = document.value ?: return
+        val bookmark = bookmarks.value?.firstOrNull { it.page == currentPage }
+
+        GlobalScope.launch {
+            if (bookmark == null) {
+                interactors.addBookmark(document, Bookmark(page = currentPage))
+            } else {
+                interactors.deleteBookmark(document, bookmark)
+            }
+
+            bookmarks.postValue(interactors.getBookmarks(document))
+        }
     }
 
+
     fun toggleInLibrary() {
-        // TODO toggle if open document is in library
+        val document = document.value ?: return
+
+        GlobalScope.launch {
+            if (isInLibrary.value == true) {
+                interactors.removeDocument(document)
+            } else {
+                interactors.addDocument(document)
+            }
+
+            isInLibrary.postValue(isInLibrary(document))
+        }
     }
+
 }
